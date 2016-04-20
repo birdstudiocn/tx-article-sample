@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+    <!-- 
+	<bean class="test.jdbc.datasource.DataSourceInitializer">
+		<property name="dataSource" ref="dataSource" />
+		<property name="initScripts" value="/init.sql" />
+	</bean>
+
+	<bean class="test.jdbc.datasource.DataSourceInitializer">
+		<property name="dataSource" ref="otherDataSource" />
+		<property name="initScripts" value="/other.sql" />
+	</bean>
+	-->
+	
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>    
+		<property name="url" value="jdbc:oracle:thin:@10.1.234.92:1521:ecss"/> 
+		<property name="username" value="ecss"/>
+		<property name="password" value="ecss_123"/> 	
+	</bean>
+	
+	<bean id="otherDataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>    
+		<property name="url" value="jdbc:oracle:thin:@10.1.234.92:1521:stat"/> 
+		<property name="username" value="stat"/>
+		<property name="password" value="stat_123"/> 	
+	</bean>	
+
+	<bean id="transactionManager" class="com.springsource.open.db.ChainedTransactionManager">
+		<property name="transactionManagers">
+			<list>
+				<bean
+					class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+					<property name="dataSource" ref="dataSource" />
+				</bean>
+				<bean
+					class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+					<property name="dataSource" ref="otherDataSource" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+</beans>

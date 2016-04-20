@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:jms="http://www.springframework.org/schema/jms"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+		http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<import resource="classpath:/META-INF/spring/data-source-context.xml" />
+	
+	<aop:aspectj-autoproxy>
+		<aop:include name="failureSimulator"/>
+	</aop:aspectj-autoproxy>
+	
+	<jms:listener-container transaction-manager="transactionManager" >
+		<!-- Use a different queue for the async samples than the sync ones -->
+		<jms:listener destination="async" ref="fooHandler" method="handle"/>
+	</jms:listener-container>
+
+	<!-- For test purposes only, a utility for simulating failures -->
+	<bean id="fooHandler" class="com.springsource.open.foo.FooHandler">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- For test purposes only, we have a utility for simulating failures -->
+	<bean id="failureSimulator" class="com.springsource.open.foo.FailureSimulator">
+		<property name="jmsTemplate" ref="jmsTemplate" />
+	</bean>
+
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="connectionFactory" />
+		<property name="receiveTimeout" value="100" />
+		<!-- This is important... -->
+		<property name="sessionTransacted" value="true" />
+	</bean>
+
+	<bean id="connectionFactory"
+		class="org.springframework.jms.connection.TransactionAwareConnectionFactoryProxy">
+		<property name="targetConnectionFactory">
+			<bean class="org.apache.activemq.ActiveMQConnectionFactory">
+				<property name="brokerURL" value="tcp://10.1.234.143:61616"/>
+			</bean>
+		</property>
+		<property name="synchedLocalTransactionAllowed" value="true" />
+	</bean>
+</beans>
