@@ -5,10 +5,10 @@
 	
 	<bean id="dataSource"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="com.mysql.jdbc.jdbc2.optional.MysqlXADataSource"/>    
-		<property name="url" value="jdbc:mysql://172.16.1.103:3306/test"/> 
-		<property name="username" value="root"/>
-		<property name="password" value="123456"/> 	
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>    
+		<property name="url" value="jdbc:oracle:thin:@10.1.234.92:1521:ecss"/> 
+		<property name="username" value="ecss"/>
+		<property name="password" value="ecss_123"/> 	
 	</bean>
 
 	<!-- Transaction manager for a datasource -->
